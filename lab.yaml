@@ -1,0 +1,34 @@
+version: 3
+
+images:
+  base_image:
+    name: registry.redhat.io/ansible-automation-platform-24/ee-supported-rhel9:latest
+
+options:
+  package_manager_path: /usr/bin/microdnf
+
+additional_build_files:
+  - src: files/ansible.cfg
+    dest: configs
+  - src: files/tntinfra-ca.crt
+    dest: configs
+
+additional_build_steps:
+  prepend_final:
+    - ARG K8S_AUTH_API_KEY
+    - ARG K8S_AUTH_HOST
+    - ARG ANSIBLE_VAULT_PASSWORD
+    - ADD _build/configs/ansible.cfg /runner/.ansible.cfg
+    - ADD _build/configs/tntinfra-ca.crt /etc/pki/ca-trust/source/anchors/
+    - RUN update-ca-trust
+
+  prepend_galaxy:
+    - ARG ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN
+
+    - ENV ANSIBLE_GALAXY_SERVER_LIST=automation_hub,release_galaxy
+    - ENV ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_URL=https://console.redhat.com/api/automation-hub/
+    - ENV ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_AUTH_URL=https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+    - ENV ANSIBLE_GALAXY_SERVER_RELEASE_GALAXY_URL=https://galaxy.ansible.com/
+
+dependencies:
+  galaxy: requirements.yaml
