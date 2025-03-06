@@ -1,0 +1,10 @@
+FROM gateway01.lan.stderr.at/ee-supported-rhel8
+
+ARG ANSIBLE_GALAXY_SERVER_PRIVATE_HUB_TOKEN
+
+ENV ANSIBLE_GALAXY_SERVER_LIST=private_hub
+ENV ANSIBLE_GALAXY_SERVER_PRIVATE_HUB_URL=https://gateway01.lan.stderr.at/pulp_ansible/galaxy/rh-certified/
+
+COPY requirements.yaml requirements.yaml
+
+RUN ANSIBLE_GALAXY_DISABLE_GPG_VERIFY=1 ansible-galaxy collection install --force --ignore-certs -r requirements.yaml --collections-path "/usr/share/ansible/collections"
