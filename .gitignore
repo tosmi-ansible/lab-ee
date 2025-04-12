@@ -1,2 +1,4 @@
 /.direnv/
 /ansible-navigator.log
+/context/
+/ansible.cfg
